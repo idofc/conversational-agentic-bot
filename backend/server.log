@@ -1,0 +1,461 @@
+INFO:     Will watch for changes in these directories: ['/Users/faithpro/32Java/conversational-agentic-bot/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [11687] using WatchFiles
+INFO:     Started server process [11769]
+INFO:     Waiting for application startup.
+2026-01-31 19:20:25,469 INFO sqlalchemy.engine.Engine select pg_catalog.version()
+2026-01-31 19:20:25,469 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:20:25,476 INFO sqlalchemy.engine.Engine select current_schema()
+2026-01-31 19:20:25,476 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:20:25,481 INFO sqlalchemy.engine.Engine show standard_conforming_strings
+2026-01-31 19:20:25,481 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:20:25,490 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:20:25,499 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:20:25,499 INFO sqlalchemy.engine.Engine [generated in 0.00095s] ('use_cases', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:20:25,512 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:20:25,512 INFO sqlalchemy.engine.Engine [cached since 0.01418s ago] ('documents', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:20:25,522 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:20:25,522 INFO sqlalchemy.engine.Engine [cached since 0.02362s ago] ('document_chunks', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:20:25,524 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:20:25,524 INFO sqlalchemy.engine.Engine [cached since 0.02633s ago] ('conversations', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:20:25,527 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:20:25,527 INFO sqlalchemy.engine.Engine [cached since 0.02882s ago] ('messages', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:20:25,532 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     Application startup complete.
+2026-01-31 19:21:03,792 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:21:03,804 INFO sqlalchemy.engine.Engine SELECT use_cases.id, use_cases.name, use_cases.uri_context, use_cases.title, use_cases.description, use_cases.details, use_cases.created_at 
+FROM use_cases 
+WHERE use_cases.uri_context = $1::VARCHAR
+2026-01-31 19:21:03,804 INFO sqlalchemy.engine.Engine [generated in 0.00018s] ('squad-navigator',)
+2026-01-31 19:21:03,814 INFO sqlalchemy.engine.Engine INSERT INTO conversations (use_case_id, title, created_at, updated_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::TIMESTAMP WITHOUT TIME ZONE, $4::TIMESTAMP WITHOUT TIME ZONE) RETURNING conversations.id
+2026-01-31 19:21:03,814 INFO sqlalchemy.engine.Engine [generated in 0.00023s] (1, 'Hi there!', datetime.datetime(2026, 2, 1, 2, 21, 3, 814496), datetime.datetime(2026, 2, 1, 2, 21, 3, 814503))
+2026-01-31 19:21:03,818 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:21:03,823 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:21:03,826 INFO sqlalchemy.engine.Engine SELECT conversations.id, conversations.use_case_id, conversations.title, conversations.created_at, conversations.updated_at 
+FROM conversations 
+WHERE conversations.id = $1::INTEGER
+2026-01-31 19:21:03,826 INFO sqlalchemy.engine.Engine [generated in 0.00041s] (3,)
+2026-01-31 19:21:03,834 INFO sqlalchemy.engine.Engine SELECT messages.id, messages.conversation_id, messages.role, messages.content, messages.metadata, messages.created_at 
+FROM messages 
+WHERE messages.conversation_id = $1::INTEGER ORDER BY messages.created_at
+2026-01-31 19:21:03,834 INFO sqlalchemy.engine.Engine [generated in 0.00022s] (3,)
+2026-01-31 19:21:03,844 INFO sqlalchemy.engine.Engine INSERT INTO messages (conversation_id, role, content, created_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::VARCHAR, $4::TIMESTAMP WITHOUT TIME ZONE) RETURNING messages.id
+2026-01-31 19:21:03,845 INFO sqlalchemy.engine.Engine [generated in 0.00036s] (3, 'user', 'Hi there!', datetime.datetime(2026, 2, 1, 2, 21, 3, 844786))
+2026-01-31 19:21:03,850 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:21:05,538 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:21:05,544 INFO sqlalchemy.engine.Engine SELECT document_chunks.id, document_chunks.document_id, document_chunks.chunk_index, document_chunks.content, document_chunks.embedding, document_chunks.created_at 
+FROM document_chunks JOIN documents ON documents.id = document_chunks.document_id 
+WHERE EXISTS (SELECT 1 
+FROM documents 
+WHERE documents.id = document_chunks.document_id AND documents.use_case_id = $1::INTEGER) ORDER BY document_chunks.embedding <=> $2 
+ LIMIT $3::INTEGER
+2026-01-31 19:21:05,545 INFO sqlalchemy.engine.Engine [generated in 0.00186s] (1, '[-0.019187437370419502,-0.03813096508383751,-0.031003428623080254,-0.004613928031176329,-0.03536667302250862,-0.004004158079624176,0.0129203535616397 ... (32383 characters truncated) ... .014146669767796993,-0.004447935149073601,0.040841054171323776,0.016924511641263962,-0.014322825707495213,0.0073917703703045845,0.017087116837501526]', 3)
+2026-01-31 19:21:05,566 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:59706 - "POST /api/use-cases/squad-navigator/chat HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 401, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/venv/lib/python3.13/site-packages/fastapi/routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/main.py", line 336, in chat
+    response = await agent.process_message(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/faithpro/32Java/conversational-agentic-bot/backend/agents/base_agent.py", line 116, in process_message
+    messages = await self.preprocess_messages(messages, context)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object list can't be used in 'await' expression
+WARNING:  WatchFiles detected changes in 'agents/base_agent.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [11769]
+INFO:     Started server process [12877]
+INFO:     Waiting for application startup.
+2026-01-31 19:21:25,312 INFO sqlalchemy.engine.Engine select pg_catalog.version()
+2026-01-31 19:21:25,313 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:21:25,316 INFO sqlalchemy.engine.Engine select current_schema()
+2026-01-31 19:21:25,316 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:21:25,318 INFO sqlalchemy.engine.Engine show standard_conforming_strings
+2026-01-31 19:21:25,318 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:21:25,322 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:21:25,326 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:25,326 INFO sqlalchemy.engine.Engine [generated in 0.00022s] ('use_cases', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:25,331 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:25,331 INFO sqlalchemy.engine.Engine [cached since 0.005307s ago] ('documents', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:25,332 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:25,332 INFO sqlalchemy.engine.Engine [cached since 0.00651s ago] ('document_chunks', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:25,333 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:25,334 INFO sqlalchemy.engine.Engine [cached since 0.007622s ago] ('conversations', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:25,335 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:25,335 INFO sqlalchemy.engine.Engine [cached since 0.008979s ago] ('messages', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:25,337 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'agents/base_agent.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [12877]
+INFO:     Started server process [12945]
+INFO:     Waiting for application startup.
+2026-01-31 19:21:35,145 INFO sqlalchemy.engine.Engine select pg_catalog.version()
+2026-01-31 19:21:35,145 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:21:35,149 INFO sqlalchemy.engine.Engine select current_schema()
+2026-01-31 19:21:35,149 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:21:35,153 INFO sqlalchemy.engine.Engine show standard_conforming_strings
+2026-01-31 19:21:35,153 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:21:35,157 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:21:35,161 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:35,161 INFO sqlalchemy.engine.Engine [generated in 0.00022s] ('use_cases', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:35,166 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:35,167 INFO sqlalchemy.engine.Engine [cached since 0.005381s ago] ('documents', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:35,168 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:35,169 INFO sqlalchemy.engine.Engine [cached since 0.007376s ago] ('document_chunks', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:35,170 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:35,170 INFO sqlalchemy.engine.Engine [cached since 0.009015s ago] ('conversations', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:35,172 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:35,172 INFO sqlalchemy.engine.Engine [cached since 0.01093s ago] ('messages', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:35,175 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'agents/squad_navigator_agent.py', 'agents/base_agent.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [12945]
+INFO:     Started server process [12999]
+INFO:     Waiting for application startup.
+2026-01-31 19:21:47,395 INFO sqlalchemy.engine.Engine select pg_catalog.version()
+2026-01-31 19:21:47,395 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:21:47,398 INFO sqlalchemy.engine.Engine select current_schema()
+2026-01-31 19:21:47,398 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:21:47,400 INFO sqlalchemy.engine.Engine show standard_conforming_strings
+2026-01-31 19:21:47,400 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:21:47,404 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:21:47,408 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:47,409 INFO sqlalchemy.engine.Engine [generated in 0.00022s] ('use_cases', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:47,412 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:47,412 INFO sqlalchemy.engine.Engine [cached since 0.004029s ago] ('documents', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:47,414 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:47,414 INFO sqlalchemy.engine.Engine [cached since 0.005257s ago] ('document_chunks', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:47,415 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:47,415 INFO sqlalchemy.engine.Engine [cached since 0.006774s ago] ('conversations', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:47,417 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:21:47,417 INFO sqlalchemy.engine.Engine [cached since 0.008351s ago] ('messages', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:21:47,418 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     Application startup complete.
+2026-01-31 19:21:55,591 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:21:55,603 INFO sqlalchemy.engine.Engine SELECT use_cases.id, use_cases.name, use_cases.uri_context, use_cases.title, use_cases.description, use_cases.details, use_cases.created_at 
+FROM use_cases 
+WHERE use_cases.uri_context = $1::VARCHAR
+2026-01-31 19:21:55,603 INFO sqlalchemy.engine.Engine [generated in 0.00021s] ('squad-navigator',)
+2026-01-31 19:21:55,612 INFO sqlalchemy.engine.Engine INSERT INTO conversations (use_case_id, title, created_at, updated_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::TIMESTAMP WITHOUT TIME ZONE, $4::TIMESTAMP WITHOUT TIME ZONE) RETURNING conversations.id
+2026-01-31 19:21:55,612 INFO sqlalchemy.engine.Engine [generated in 0.00033s] (1, 'Hi! I am a backend developer with Python and FastA...', datetime.datetime(2026, 2, 1, 2, 21, 55, 611984), datetime.datetime(2026, 2, 1, 2, 21, 55, 611993))
+2026-01-31 19:21:55,615 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:21:55,619 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:21:55,621 INFO sqlalchemy.engine.Engine SELECT conversations.id, conversations.use_case_id, conversations.title, conversations.created_at, conversations.updated_at 
+FROM conversations 
+WHERE conversations.id = $1::INTEGER
+2026-01-31 19:21:55,621 INFO sqlalchemy.engine.Engine [generated in 0.00029s] (4,)
+2026-01-31 19:21:55,626 INFO sqlalchemy.engine.Engine SELECT messages.id, messages.conversation_id, messages.role, messages.content, messages.metadata, messages.created_at 
+FROM messages 
+WHERE messages.conversation_id = $1::INTEGER ORDER BY messages.created_at
+2026-01-31 19:21:55,626 INFO sqlalchemy.engine.Engine [generated in 0.00016s] (4,)
+2026-01-31 19:21:55,632 INFO sqlalchemy.engine.Engine INSERT INTO messages (conversation_id, role, content, created_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::VARCHAR, $4::TIMESTAMP WITHOUT TIME ZONE) RETURNING messages.id
+2026-01-31 19:21:55,632 INFO sqlalchemy.engine.Engine [generated in 0.00026s] (4, 'user', 'Hi! I am a backend developer with Python and FastAPI skills. Looking for a squad to join.', datetime.datetime(2026, 2, 1, 2, 21, 55, 632444))
+2026-01-31 19:21:55,635 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:21:57,662 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:21:57,668 INFO sqlalchemy.engine.Engine SELECT document_chunks.id, document_chunks.document_id, document_chunks.chunk_index, document_chunks.content, document_chunks.embedding, document_chunks.created_at 
+FROM document_chunks JOIN documents ON documents.id = document_chunks.document_id 
+WHERE EXISTS (SELECT 1 
+FROM documents 
+WHERE documents.id = document_chunks.document_id AND documents.use_case_id = $1::INTEGER) ORDER BY document_chunks.embedding <=> $2 
+ LIMIT $3::INTEGER
+2026-01-31 19:21:57,668 INFO sqlalchemy.engine.Engine [generated in 0.00176s] (1, '[-0.06407519429922104,-0.04136527702212334,0.024726111441850662,0.000591980991885066,0.0008585455361753702,-0.007710292935371399,-0.05468104034662247 ... (32325 characters truncated) ... 0008107716566883028,0.008635306730866432,-0.011100162751972675,0.008098023012280464,-0.020062269642949104,-0.023396750912070274,0.004990641959011555]', 3)
+2026-01-31 19:21:59,585 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:21:59,586 INFO sqlalchemy.engine.Engine SELECT use_cases.id, use_cases.name, use_cases.uri_context, use_cases.title, use_cases.description, use_cases.details, use_cases.created_at 
+FROM use_cases 
+WHERE use_cases.uri_context = $1::VARCHAR
+2026-01-31 19:21:59,586 INFO sqlalchemy.engine.Engine [cached since 3.983s ago] ('squad-navigator',)
+2026-01-31 19:21:59,594 INFO sqlalchemy.engine.Engine INSERT INTO conversations (use_case_id, title, created_at, updated_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::TIMESTAMP WITHOUT TIME ZONE, $4::TIMESTAMP WITHOUT TIME ZONE) RETURNING conversations.id
+2026-01-31 19:21:59,594 INFO sqlalchemy.engine.Engine [cached since 3.983s ago] (1, 'Hello!', datetime.datetime(2026, 2, 1, 2, 21, 59, 594575), datetime.datetime(2026, 2, 1, 2, 21, 59, 594586))
+2026-01-31 19:21:59,598 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:21:59,601 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:21:59,601 INFO sqlalchemy.engine.Engine SELECT conversations.id, conversations.use_case_id, conversations.title, conversations.created_at, conversations.updated_at 
+FROM conversations 
+WHERE conversations.id = $1::INTEGER
+2026-01-31 19:21:59,601 INFO sqlalchemy.engine.Engine [cached since 3.98s ago] (5,)
+2026-01-31 19:21:59,605 INFO sqlalchemy.engine.Engine SELECT messages.id, messages.conversation_id, messages.role, messages.content, messages.metadata, messages.created_at 
+FROM messages 
+WHERE messages.conversation_id = $1::INTEGER ORDER BY messages.created_at
+2026-01-31 19:21:59,605 INFO sqlalchemy.engine.Engine [cached since 3.979s ago] (5,)
+2026-01-31 19:21:59,609 INFO sqlalchemy.engine.Engine INSERT INTO messages (conversation_id, role, content, created_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::VARCHAR, $4::TIMESTAMP WITHOUT TIME ZONE) RETURNING messages.id
+2026-01-31 19:21:59,609 INFO sqlalchemy.engine.Engine [cached since 3.977s ago] (5, 'user', 'Hello!', datetime.datetime(2026, 2, 1, 2, 21, 59, 609484))
+2026-01-31 19:21:59,612 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:22:00,715 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:22:00,719 INFO sqlalchemy.engine.Engine SELECT document_chunks.id, document_chunks.document_id, document_chunks.chunk_index, document_chunks.content, document_chunks.embedding, document_chunks.created_at 
+FROM document_chunks JOIN documents ON documents.id = document_chunks.document_id 
+WHERE EXISTS (SELECT 1 
+FROM documents 
+WHERE documents.id = document_chunks.document_id AND documents.use_case_id = $1::INTEGER) ORDER BY document_chunks.embedding <=> $2 
+ LIMIT $3::INTEGER
+2026-01-31 19:22:00,719 INFO sqlalchemy.engine.Engine [cached since 3.053s ago] (1, '[0.015798436477780342,-0.01606077328324318,0.018771573901176453,0.008365592919290066,-0.02184673212468624,-0.02173013798892498,-0.02337702363729477,0 ... (32355 characters truncated) ... 13124070130288601,0.0005715820589102805,0.032150693237781525,-0.0015284696128219366,-0.022356828674674034,0.009516955353319645,-0.011921699158847332]', 3)
+2026-01-31 19:22:00,822 INFO sqlalchemy.engine.Engine UPDATE conversations SET updated_at=$1::TIMESTAMP WITHOUT TIME ZONE WHERE conversations.id = $2::INTEGER
+2026-01-31 19:22:00,822 INFO sqlalchemy.engine.Engine [generated in 0.00017s] (datetime.datetime(2026, 2, 1, 2, 22, 0, 821454), 4)
+2026-01-31 19:22:00,826 INFO sqlalchemy.engine.Engine INSERT INTO messages (conversation_id, role, content, metadata, created_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::VARCHAR, $4::JSON, $5::TIMESTAMP WITHOUT TIME ZONE) RETURNING messages.id
+2026-01-31 19:22:00,826 INFO sqlalchemy.engine.Engine [generated in 0.00024s] (4, 'assistant', 'Great to hear from you! As a backend developer with Python and FastAPI skills, there are likely some exciting squads that could be a good fit for you ... (337 characters truncated) ... -paced)?\n- What are your long-term career goals or areas you’d like to grow in?\n\nWith this information, I can help find the perfect squad for you!', '{"model": "gpt-4o-mini"}', datetime.datetime(2026, 2, 1, 2, 22, 0, 826482))
+2026-01-31 19:22:00,829 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:22:00,832 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:22:00,833 INFO sqlalchemy.engine.Engine SELECT messages.id, messages.conversation_id, messages.role, messages.content, messages.metadata, messages.created_at 
+FROM messages 
+WHERE messages.id = $1::INTEGER
+2026-01-31 19:22:00,833 INFO sqlalchemy.engine.Engine [generated in 0.00016s] (7,)
+2026-01-31 19:22:00,836 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-01-31 19:22:02,362 INFO sqlalchemy.engine.Engine UPDATE conversations SET updated_at=$1::TIMESTAMP WITHOUT TIME ZONE WHERE conversations.id = $2::INTEGER
+2026-01-31 19:22:02,362 INFO sqlalchemy.engine.Engine [cached since 1.539s ago] (datetime.datetime(2026, 2, 1, 2, 22, 2, 361267), 5)
+2026-01-31 19:22:02,366 INFO sqlalchemy.engine.Engine INSERT INTO messages (conversation_id, role, content, metadata, created_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::VARCHAR, $4::JSON, $5::TIMESTAMP WITHOUT TIME ZONE) RETURNING messages.id
+2026-01-31 19:22:02,366 INFO sqlalchemy.engine.Engine [cached since 1.54s ago] (5, 'assistant', "Hi there! How can I assist you today on your squad journey? Are you looking to join a squad, create a new one, or explore your options? Let me know what you're interested in!", '{"model": "gpt-4o-mini", "suggestion_type": "join_existing", "next_steps": ["Review squad details thoroughly", "Reach out to squad lead", "Schedule an intro meeting", "Confirm alignment with squad goals"]}', datetime.datetime(2026, 2, 1, 2, 22, 2, 366055))
+2026-01-31 19:22:02,370 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:22:02,373 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:22:02,373 INFO sqlalchemy.engine.Engine SELECT messages.id, messages.conversation_id, messages.role, messages.content, messages.metadata, messages.created_at 
+FROM messages 
+WHERE messages.id = $1::INTEGER
+2026-01-31 19:22:02,373 INFO sqlalchemy.engine.Engine [cached since 1.541s ago] (8,)
+2026-01-31 19:22:02,376 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:59840 - "POST /api/use-cases/squad-navigator/chat HTTP/1.1" 200 OK
+2026-01-31 19:26:46,755 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:26:46,755 INFO sqlalchemy.engine.Engine SELECT use_cases.id, use_cases.name, use_cases.uri_context, use_cases.title, use_cases.description, use_cases.details, use_cases.created_at 
+FROM use_cases 
+WHERE use_cases.uri_context = $1::VARCHAR
+2026-01-31 19:26:46,755 INFO sqlalchemy.engine.Engine [cached since 291.2s ago] ('squad-navigator',)
+2026-01-31 19:26:46,758 INFO sqlalchemy.engine.Engine INSERT INTO conversations (use_case_id, title, created_at, updated_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::TIMESTAMP WITHOUT TIME ZONE, $4::TIMESTAMP WITHOUT TIME ZONE) RETURNING conversations.id
+2026-01-31 19:26:46,758 INFO sqlalchemy.engine.Engine [cached since 291.1s ago] (1, 'I need help finding a squad', datetime.datetime(2026, 2, 1, 2, 26, 46, 758107), datetime.datetime(2026, 2, 1, 2, 26, 46, 758113))
+2026-01-31 19:26:46,759 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:26:46,761 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:26:46,761 INFO sqlalchemy.engine.Engine SELECT conversations.id, conversations.use_case_id, conversations.title, conversations.created_at, conversations.updated_at 
+FROM conversations 
+WHERE conversations.id = $1::INTEGER
+2026-01-31 19:26:46,761 INFO sqlalchemy.engine.Engine [cached since 291.1s ago] (6,)
+2026-01-31 19:26:46,764 INFO sqlalchemy.engine.Engine SELECT messages.id, messages.conversation_id, messages.role, messages.content, messages.metadata, messages.created_at 
+FROM messages 
+WHERE messages.conversation_id = $1::INTEGER ORDER BY messages.created_at
+2026-01-31 19:26:46,764 INFO sqlalchemy.engine.Engine [cached since 291.1s ago] (6,)
+2026-01-31 19:26:46,765 INFO sqlalchemy.engine.Engine INSERT INTO messages (conversation_id, role, content, created_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::VARCHAR, $4::TIMESTAMP WITHOUT TIME ZONE) RETURNING messages.id
+2026-01-31 19:26:46,765 INFO sqlalchemy.engine.Engine [cached since 291.1s ago] (6, 'user', 'I need help finding a squad', datetime.datetime(2026, 2, 1, 2, 26, 46, 765588))
+2026-01-31 19:26:46,767 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:26:48,038 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:26:48,041 INFO sqlalchemy.engine.Engine SELECT document_chunks.id, document_chunks.document_id, document_chunks.chunk_index, document_chunks.content, document_chunks.embedding, document_chunks.created_at 
+FROM document_chunks JOIN documents ON documents.id = document_chunks.document_id 
+WHERE EXISTS (SELECT 1 
+FROM documents 
+WHERE documents.id = document_chunks.document_id AND documents.use_case_id = $1::INTEGER) ORDER BY document_chunks.embedding <=> $2 
+ LIMIT $3::INTEGER
+2026-01-31 19:26:48,041 INFO sqlalchemy.engine.Engine [cached since 290.4s ago] (1, '[-0.022259889170527458,-0.003862859681248665,-0.014934668317437172,0.017621874809265137,-0.016601253300905228,-0.008378141559660435,-0.03493368625640 ... (32349 characters truncated) ... 0.0038337912410497665,0.005526214838027954,-0.006692178081721067,0.011885722167789936,0.005881494376808405,-0.003244349965825677,0.04232350364327431]', 3)
+2026-01-31 19:26:50,496 INFO sqlalchemy.engine.Engine UPDATE conversations SET updated_at=$1::TIMESTAMP WITHOUT TIME ZONE WHERE conversations.id = $2::INTEGER
+2026-01-31 19:26:50,496 INFO sqlalchemy.engine.Engine [cached since 289.7s ago] (datetime.datetime(2026, 2, 1, 2, 26, 50, 495507), 6)
+2026-01-31 19:26:50,498 INFO sqlalchemy.engine.Engine INSERT INTO messages (conversation_id, role, content, metadata, created_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::VARCHAR, $4::JSON, $5::TIMESTAMP WITHOUT TIME ZONE) RETURNING messages.id
+2026-01-31 19:26:50,498 INFO sqlalchemy.engine.Engine [cached since 289.7s ago] (6, 'assistant', "I'd be happy to help you find a squad! To start, could you share a bit about your skills, interests, and what you're looking for in a squad? For exam ... (64 characters truncated) ... rtain goals you want to achieve, or a type of team culture you prefer? The more details you provide, the better I can match you with the right squad!", '{"model": "gpt-4o-mini"}', datetime.datetime(2026, 2, 1, 2, 26, 50, 498367))
+2026-01-31 19:26:50,500 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:26:50,503 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:26:50,503 INFO sqlalchemy.engine.Engine SELECT messages.id, messages.conversation_id, messages.role, messages.content, messages.metadata, messages.created_at 
+FROM messages 
+WHERE messages.id = $1::INTEGER
+2026-01-31 19:26:50,503 INFO sqlalchemy.engine.Engine [cached since 289.7s ago] (10,)
+2026-01-31 19:26:50,506 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:60436 - "POST /api/use-cases/squad-navigator/chat HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'agents/squad_navigator_agent.py', 'agents/base_agent.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [12999]
+INFO:     Started server process [15132]
+INFO:     Waiting for application startup.
+2026-01-31 19:26:54,462 INFO sqlalchemy.engine.Engine select pg_catalog.version()
+2026-01-31 19:26:54,462 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:26:54,465 INFO sqlalchemy.engine.Engine select current_schema()
+2026-01-31 19:26:54,465 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:26:54,469 INFO sqlalchemy.engine.Engine show standard_conforming_strings
+2026-01-31 19:26:54,469 INFO sqlalchemy.engine.Engine [raw sql] ()
+2026-01-31 19:26:54,471 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:26:54,476 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:26:54,476 INFO sqlalchemy.engine.Engine [generated in 0.00023s] ('use_cases', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:26:54,479 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:26:54,479 INFO sqlalchemy.engine.Engine [cached since 0.003894s ago] ('documents', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:26:54,480 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:26:54,480 INFO sqlalchemy.engine.Engine [cached since 0.005016s ago] ('document_chunks', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:26:54,483 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:26:54,483 INFO sqlalchemy.engine.Engine [cached since 0.007292s ago] ('conversations', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:26:54,484 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+2026-01-31 19:26:54,484 INFO sqlalchemy.engine.Engine [cached since 0.008863s ago] ('messages', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+2026-01-31 19:26:54,486 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     Application startup complete.
+2026-01-31 19:26:59,915 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:26:59,927 INFO sqlalchemy.engine.Engine SELECT use_cases.id, use_cases.name, use_cases.uri_context, use_cases.title, use_cases.description, use_cases.details, use_cases.created_at 
+FROM use_cases 
+WHERE use_cases.uri_context = $1::VARCHAR
+2026-01-31 19:26:59,928 INFO sqlalchemy.engine.Engine [generated in 0.00017s] ('squad-navigator',)
+2026-01-31 19:26:59,932 INFO sqlalchemy.engine.Engine SELECT conversations.id, conversations.use_case_id, conversations.title, conversations.created_at, conversations.updated_at 
+FROM conversations 
+WHERE conversations.id = $1::INTEGER
+2026-01-31 19:26:59,932 INFO sqlalchemy.engine.Engine [generated in 0.00015s] (6,)
+2026-01-31 19:26:59,936 INFO sqlalchemy.engine.Engine SELECT messages.id, messages.conversation_id, messages.role, messages.content, messages.metadata, messages.created_at 
+FROM messages 
+WHERE messages.conversation_id = $1::INTEGER ORDER BY messages.created_at
+2026-01-31 19:26:59,936 INFO sqlalchemy.engine.Engine [generated in 0.00014s] (6,)
+2026-01-31 19:26:59,941 INFO sqlalchemy.engine.Engine INSERT INTO messages (conversation_id, role, content, created_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::VARCHAR, $4::TIMESTAMP WITHOUT TIME ZONE) RETURNING messages.id
+2026-01-31 19:26:59,942 INFO sqlalchemy.engine.Engine [generated in 0.00021s] (6, 'user', 'I have Python, FastAPI, PostgreSQL, and Docker skills. I want to work on backend microservices.', datetime.datetime(2026, 2, 1, 2, 26, 59, 941932))
+2026-01-31 19:26:59,944 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:27:01,563 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:27:01,569 INFO sqlalchemy.engine.Engine SELECT document_chunks.id, document_chunks.document_id, document_chunks.chunk_index, document_chunks.content, document_chunks.embedding, document_chunks.created_at 
+FROM document_chunks JOIN documents ON documents.id = document_chunks.document_id 
+WHERE EXISTS (SELECT 1 
+FROM documents 
+WHERE documents.id = document_chunks.document_id AND documents.use_case_id = $1::INTEGER) ORDER BY document_chunks.embedding <=> $2 
+ LIMIT $3::INTEGER
+2026-01-31 19:27:01,569 INFO sqlalchemy.engine.Engine [generated in 0.00176s] (1, '[-0.044782113283872604,-0.017816660925745964,0.03185301274061203,-0.009316558949649334,0.0031204321421682835,0.006419813726097345,-0.0243147648870944 ... (32292 characters truncated) ... 0.02148512564599514,0.03165169432759285,0.0057375687174499035,-0.018107453361153603,-0.008807671256363392,-0.015546238981187344,0.019829843193292618]', 3)
+2026-01-31 19:27:07,824 INFO sqlalchemy.engine.Engine UPDATE conversations SET updated_at=$1::TIMESTAMP WITHOUT TIME ZONE WHERE conversations.id = $2::INTEGER
+2026-01-31 19:27:07,824 INFO sqlalchemy.engine.Engine [generated in 0.00019s] (datetime.datetime(2026, 2, 1, 2, 27, 7, 822169), 6)
+2026-01-31 19:27:07,827 INFO sqlalchemy.engine.Engine INSERT INTO messages (conversation_id, role, content, metadata, created_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::VARCHAR, $4::JSON, $5::TIMESTAMP WITHOUT TIME ZONE) RETURNING messages.id
+2026-01-31 19:27:07,827 INFO sqlalchemy.engine.Engine [generated in 0.00026s] (6, 'assistant', "Great! It sounds like you have a solid skill set for backend development, particularly with Python and related technologies. Let me help you find som ... (1337 characters truncated) ... further.\n  \nIf none of these squads fit what you're looking for, we can also explore the option of creating a new squad tailored to your interests!", '{"model": "gpt-4o-mini", "suggestion_type": "create_squad", "next_steps": ["Define squad mission and goals", "Choose a squad name", "Identify required skills and roles", "Set up initial squad structure", "Start recruiting members"]}', datetime.datetime(2026, 2, 1, 2, 27, 7, 827359))
+2026-01-31 19:27:07,831 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:27:07,834 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:27:07,835 INFO sqlalchemy.engine.Engine SELECT messages.id, messages.conversation_id, messages.role, messages.content, messages.metadata, messages.created_at 
+FROM messages 
+WHERE messages.id = $1::INTEGER
+2026-01-31 19:27:07,835 INFO sqlalchemy.engine.Engine [generated in 0.00018s] (12,)
+2026-01-31 19:27:07,839 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:60470 - "POST /api/use-cases/squad-navigator/chat HTTP/1.1" 200 OK
+2026-01-31 19:27:34,605 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:27:34,605 INFO sqlalchemy.engine.Engine SELECT use_cases.id, use_cases.name, use_cases.uri_context, use_cases.title, use_cases.description, use_cases.details, use_cases.created_at 
+FROM use_cases 
+WHERE use_cases.uri_context = $1::VARCHAR
+2026-01-31 19:27:34,605 INFO sqlalchemy.engine.Engine [cached since 34.68s ago] ('squad-navigator',)
+2026-01-31 19:27:34,608 INFO sqlalchemy.engine.Engine SELECT conversations.id, conversations.use_case_id, conversations.title, conversations.created_at, conversations.updated_at 
+FROM conversations 
+WHERE conversations.id = $1::INTEGER
+2026-01-31 19:27:34,608 INFO sqlalchemy.engine.Engine [cached since 34.68s ago] (6,)
+2026-01-31 19:27:34,609 INFO sqlalchemy.engine.Engine SELECT messages.id, messages.conversation_id, messages.role, messages.content, messages.metadata, messages.created_at 
+FROM messages 
+WHERE messages.conversation_id = $1::INTEGER ORDER BY messages.created_at
+2026-01-31 19:27:34,609 INFO sqlalchemy.engine.Engine [cached since 34.67s ago] (6,)
+2026-01-31 19:27:34,611 INFO sqlalchemy.engine.Engine INSERT INTO messages (conversation_id, role, content, created_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::VARCHAR, $4::TIMESTAMP WITHOUT TIME ZONE) RETURNING messages.id
+2026-01-31 19:27:34,611 INFO sqlalchemy.engine.Engine [cached since 34.67s ago] (6, 'user', 'I have Python, FastAPI, PostgreSQL, and Docker skills', datetime.datetime(2026, 2, 1, 2, 27, 34, 611496))
+2026-01-31 19:27:34,613 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:27:34,934 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:27:34,937 INFO sqlalchemy.engine.Engine SELECT document_chunks.id, document_chunks.document_id, document_chunks.chunk_index, document_chunks.content, document_chunks.embedding, document_chunks.created_at 
+FROM document_chunks JOIN documents ON documents.id = document_chunks.document_id 
+WHERE EXISTS (SELECT 1 
+FROM documents 
+WHERE documents.id = document_chunks.document_id AND documents.use_case_id = $1::INTEGER) ORDER BY document_chunks.embedding <=> $2 
+ LIMIT $3::INTEGER
+2026-01-31 19:27:34,938 INFO sqlalchemy.engine.Engine [cached since 33.37s ago] (1, '[-0.03583300858736038,-0.023620346561074257,0.027254246175289154,0.01330513134598732,0.01616855151951313,-0.02638026885688305,-0.012454154901206493,0 ... (32386 characters truncated) ... 0.016088053584098816,0.031302131712436676,0.01655954122543335,-0.011787173338234425,-0.019445961341261864,-0.007555290590971708,0.025276299566030502]', 3)
+2026-01-31 19:27:41,445 INFO sqlalchemy.engine.Engine UPDATE conversations SET updated_at=$1::TIMESTAMP WITHOUT TIME ZONE WHERE conversations.id = $2::INTEGER
+2026-01-31 19:27:41,445 INFO sqlalchemy.engine.Engine [cached since 33.62s ago] (datetime.datetime(2026, 2, 1, 2, 27, 41, 444074), 6)
+2026-01-31 19:27:41,449 INFO sqlalchemy.engine.Engine INSERT INTO messages (conversation_id, role, content, metadata, created_at) VALUES ($1::INTEGER, $2::VARCHAR, $3::VARCHAR, $4::JSON, $5::TIMESTAMP WITHOUT TIME ZONE) RETURNING messages.id
+2026-01-31 19:27:41,449 INFO sqlalchemy.engine.Engine [cached since 33.62s ago] (6, 'assistant', 'Thank you for reiterating your skills! With your expertise in Python, FastAPI, PostgreSQL, and Docker, you’re well-equipped for backend development,  ... (1461 characters truncated) ... cuss creating a new squad tailored to your specific interests and goals. \n\nFeel free to share any additional details or preferences you might have!', '{"model": "gpt-4o-mini", "suggestion_type": "create_squad", "next_steps": ["Define squad mission and goals", "Choose a squad name", "Identify required skills and roles", "Set up initial squad structure", "Start recruiting members"]}', datetime.datetime(2026, 2, 1, 2, 27, 41, 448977))
+2026-01-31 19:27:41,452 INFO sqlalchemy.engine.Engine COMMIT
+2026-01-31 19:27:41,457 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-01-31 19:27:41,457 INFO sqlalchemy.engine.Engine SELECT messages.id, messages.conversation_id, messages.role, messages.content, messages.metadata, messages.created_at 
+FROM messages 
+WHERE messages.id = $1::INTEGER
+2026-01-31 19:27:41,457 INFO sqlalchemy.engine.Engine [cached since 33.62s ago] (14,)
+2026-01-31 19:27:41,461 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:60551 - "POST /api/use-cases/squad-navigator/chat HTTP/1.1" 200 OK
