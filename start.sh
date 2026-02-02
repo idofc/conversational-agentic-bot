@@ -19,7 +19,7 @@ cd backend
 # Create virtual environment if it doesn't exist
 if [ ! -d "venv" ]; then
     echo -e "${BLUE}Creating virtual environment...${NC}"
-    python3 -m venv venv
+    python3.11 -m venv venv
 fi
 
 # Activate virtual environment

@@ -75,6 +75,7 @@ function AppContent() {
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)}
         onUploadClick={handleUploadClick}
+        useCaseId={currentUriContext}
       />
       <UploadModal
         isOpen={isUploadModalOpen}
@@ -88,6 +89,7 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/usecase/:usecase-id" element={<UseCase />} />
+            <Route path="/usecase/:usecase-id/conversation/:conversation-id" element={<UseCase />} />
             <Route path="/usecase/:usecase-id/documents" element={<Documents />} />
           </Routes>
         )}

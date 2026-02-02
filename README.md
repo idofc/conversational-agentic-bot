@@ -3,7 +3,7 @@
 ## Quick Start
 
 **Prerequisites:**
-- Python 3.13+
+- Python 3.11+
 - Node.js 16+
 - OpenAI API Key
 - Docker & Docker Compose (for PostgreSQL)

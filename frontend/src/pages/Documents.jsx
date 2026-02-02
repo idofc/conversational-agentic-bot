@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import './Documents.css'
 
@@ -6,6 +6,7 @@ const API_BASE_URL = 'http://localhost:8000'
 
 function Documents() {
   const { 'usecase-id': useCaseId } = useParams()
+  const navigate = useNavigate()
   const [useCaseData, setUseCaseData] = useState(null)
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(true)
@@ -125,11 +126,17 @@ function Documents() {
 
   return (
     <div className="documents-page">
-      <div className="documents-header">
-        <h1>Documents - {useCaseData?.title}</h1>
-        <p className="description">Upload and manage documents for this use case</p>
+      <div className="documents-actions">
+        <button 
+          className="go-to-chat-btn" 
+          onClick={() => navigate(`/usecase/${useCaseId}`)}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          Go to Chat
+        </button>
       </div>
-
       <div className="upload-section">
         <div className="upload-card">
           <h2>Upload New Document</h2>
@@ -189,9 +196,9 @@ function Documents() {
                 <div className="document-info">
                   <h3 className="document-name" title={doc.filename}>{doc.filename}</h3>
                   <div className="document-meta">
-                    <span className="file-size">{formatFileSize(doc.fileSize)}</span>
+                    <span className="file-size">{formatFileSize(doc.file_size)}</span>
                     <span className="separator">•</span>
-                    <span className="upload-date">{formatDate(doc.uploadedAt)}</span>
+                    <span className="upload-date">{formatDate(doc.uploaded_at)}</span>
                   </div>
                   <div className="document-status">
                     <span className={`status-badge ${doc.status}`}>{doc.status}</span>

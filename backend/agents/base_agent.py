@@ -229,7 +229,7 @@ Always maintain context from the conversation history."""
             
         try:
             from embeddings import get_embedding
-            from database import DocumentChunkDB
+            from clients.database import DocumentChunkDB
             
             # Generate embedding for the query
             query_embedding = get_embedding(query)

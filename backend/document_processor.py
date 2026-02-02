@@ -6,25 +6,27 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import PyPDF2
 import io
 
-UPLOAD_DIR = "./uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# Use centralized uploads directory
+UPLOAD_DIR = Path.home() / "tmp" / "uploads"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 async def save_upload_file(upload_file: UploadFile, use_case_id: int) -> tuple[str, int]:
     """
-    Save uploaded file to disk
+    Save uploaded file to ~/tmp/uploads/use_case_<id>/ directory
+    Creates use-case-specific folder if it doesn't exist
     Returns: (file_path, file_size)
     """
-    use_case_dir = os.path.join(UPLOAD_DIR, str(use_case_id))
-    os.makedirs(use_case_dir, exist_ok=True)
+    use_case_dir = UPLOAD_DIR / f"use_case_{use_case_id}"
+    use_case_dir.mkdir(parents=True, exist_ok=True)
     
-    file_path = os.path.join(use_case_dir, upload_file.filename)
+    file_path = use_case_dir / upload_file.filename
     
     # Save file
     contents = await upload_file.read()
     with open(file_path, "wb") as f:
         f.write(contents)
     
-    return file_path, len(contents)
+    return str(file_path), len(contents)
 
 def extract_text_from_pdf(file_path: str) -> str:
     """

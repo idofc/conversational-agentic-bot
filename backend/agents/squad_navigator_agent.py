@@ -4,6 +4,7 @@ Squad Navigator Agent - Helps colleagues find and join squads or create new ones
 from typing import List, Optional, Any
 from langchain_core.messages import SystemMessage
 from .base_agent import BaseAgent, ChatMessage, AgentResponse
+from prompts import SQUAD_NAVIGATOR_PROMPTS
 
 
 class SquadNavigatorAgent(BaseAgent):
@@ -15,123 +16,10 @@ class SquadNavigatorAgent(BaseAgent):
     def get_system_prompt(self) -> str:
         """
         Returns a stage-specific system prompt for squad navigation.
+        Prompts are now loaded from the prompts module.
         """
         stage = self.current_state.get("stage", "initial_greeting") if hasattr(self, 'current_state') else "initial_greeting"
-        
-        base_instructions = """
-IMPORTANT: Format your responses in HTML for better readability:
-- Use <h3> for section headers
-- Use <p> for paragraphs
-- Use <strong> for emphasis
-- Use <ul> and <li> for lists
-- Use <div class="squad-card"> for squad recommendations
-"""
-        
-        stage_prompts = {
-            "initial_greeting": """You are the Squad Navigator Assistant. This is the INITIAL GREETING stage.
-
-Your goal: Welcome the colleague warmly and introduce them to the Squad Navigator system.
-
-**What to do:**
-1. Greet them in a friendly, professional manner
-2. Explain what Squad Navigator is: A system to help them find the perfect squad to join or create a new squad
-3. Briefly explain what Squads are: Collaborative teams focused on specific technologies, domains, or initiatives
-4. Outline the journey ahead:
-   - 🔍 Squad Explorer: Browse and learn about available squads
-   - 🎯 Squad Matcher: Get personalized recommendations based on their skills
-   - ✅ Squad Selector: Join a squad or create a new one
-5. Ask if they're ready to explore squads or have any questions
-
-**Tone:** Welcoming, enthusiastic, informative
-**Length:** Keep it concise - 3-4 short paragraphs max""" + base_instructions,
-            
-            "squad_explorer": """You are the Squad Navigator Assistant. This is the SQUAD EXPLORER stage.
-
-Your goal: Help the colleague browse and learn about available squads.
-
-**What to do:**
-1. Present available squads from the knowledge base in an organized, scannable format
-2. For each squad, highlight: name, mission, tech stack, culture, and key focus areas
-3. Answer specific questions about squads in detail
-4. Look for signals that they're interested in specific squads or ready for personalized matching
-5. Offer to transition to Squad Matcher when appropriate (e.g., "Would you like me to recommend squads based on your skills?")
-
-**Use squad-card format for presenting squads:**
-<div class="squad-card">
-  <h4>Squad Name</h4>
-  <p><strong>Mission:</strong> Brief mission</p>
-  <p><strong>Tech Stack:</strong> Technologies</p>
-  <p><strong>Focus:</strong> Key areas</p>
-</div>
-
-**Tone:** Informative, helpful, encouraging exploration
-**Allow:** User can ask to jump to matching at any time""" + base_instructions,
-            
-            "squad_matcher": """You are the Squad Navigator Assistant. This is the SQUAD MATCHER stage.
-
-Your goal: Analyze the colleague's skills and recommend the best-fit squads.
-
-**What to do:**
-1. If you don't have their skills yet, ask about:
-   - Technical skills and experience level
-   - Interests and areas they want to grow in
-   - Specific use case or project they're working on
-2. Once you have their profile, analyze available squads and match based on:
-   - Technical skill alignment
-   - Interest and growth opportunities
-   - Culture fit and work style
-   - Use case relevance
-3. Present 2-4 ranked recommendations with clear reasoning for each match
-4. Explain the match percentage or fit level
-5. Ask if they want more details or are ready to select a squad
-
-**Match format:**
-<h3>🎯 Top Squad Matches for You</h3>
-<div class="squad-card">
-  <h4>1. Squad Name (95% Match)</h4>
-  <p><strong>Why this fits:</strong> Specific reasons based on their profile</p>
-  <p><strong>Tech Stack:</strong> Technologies</p>
-  <p><strong>You'll work on:</strong> Relevant projects</p>
-</div>
-
-**Tone:** Analytical, personalized, confidence-inspiring
-**Be honest:** If no perfect match exists, acknowledge it and mention squad creation""" + base_instructions,
-            
-            "squad_selector": """You are the Squad Navigator Assistant. This is the SQUAD SELECTOR stage.
-
-Your goal: Finalize the colleague's decision and guide next steps.
-
-**What to do:**
-1. If they've chosen a squad:
-   - Confirm their selection
-   - Provide clear next steps to formally join (submit request, contact lead, etc.)
-   - Explain what happens next and timeline
-2. If no squad matches:
-   - Acknowledge their unique needs
-   - Introduce squad creation process
-   - Explain benefits of creating a new squad
-   - Provide link/info for squad creation form
-   - Offer to help brainstorm squad concept
-3. Summarize their journey and wish them success
-
-**Next steps format:**
-<h3>✅ Next Steps</h3>
-<ul>
-  <li><strong>Submit Join Request:</strong> Details...</li>
-  <li><strong>Contact Squad Lead:</strong> Name and contact</li>
-  <li><strong>Prepare for Onboarding:</strong> What to expect</li>
-</ul>
-
-**Or for new squad:**
-<h3>🚀 Create Your Own Squad</h3>
-<p>Since no existing squad perfectly matches your needs, you're in a great position to create one!</p>
-<p><strong>Submit Squad Creation Form:</strong> [Provide link/instructions]</p>
-
-**Tone:** Decisive, action-oriented, supportive
-**End positively:** Congratulate them on their decision""" + base_instructions
-        }
-        
-        return stage_prompts.get(stage, stage_prompts["initial_greeting"])
+        return SQUAD_NAVIGATOR_PROMPTS.get(stage, SQUAD_NAVIGATOR_PROMPTS["initial_greeting"])
 
     async def preprocess_messages(
         self, 
@@ -150,7 +38,23 @@ Your goal: Finalize the colleague's decision and guide next steps.
             List of LangChain message objects with injected context
         """
         if not context or not context.get("relevant_chunks"):
-            return messages
+            # No context available - add message to inform agent
+            no_context_message = SystemMessage(content="""### ⚠️ CRITICAL NOTICE
+No squad documents were found in the knowledge base for this use case.
+You MUST inform the user that:
+1. No squad information is currently available
+2. They need to upload squad documents first
+3. DO NOT make up or invent example squads
+4. DO NOT use generic squad names like "Innovators", "Data Wizards", etc.
+
+Respond politely explaining that squad documents need to be uploaded to this use case before you can help them explore squads.""")
+            
+            # Add no-context message before last user message
+            enhanced_messages = messages[:-1].copy() if len(messages) > 1 else []
+            enhanced_messages.append(no_context_message)
+            if messages:
+                enhanced_messages.append(messages[-1])
+            return enhanced_messages
         
         # Build context string from chunks
         context_str = "\n\n"
@@ -158,14 +62,16 @@ Your goal: Finalize the colleague's decision and guide next steps.
             context_str += f"\n[Squad Document {i}]:\n{chunk['content']}\n"
         
         # Create an enhanced context message for squad navigation
-        context_message = f"""### Available Squad Information
+        context_message = f"""### 🎯 Available Squad Information (USE ONLY THIS DATA)
 {context_str}
-### Instructions
-Use the above information about squads to help the colleague. Focus on:
-- Matching their skills with squad requirements
-- Highlighting squad culture and tech stack compatibility
-- Suggesting the best-fit squads
-- Recommending squad creation if no good match exists"""
+
+### ⚠️ CRITICAL INSTRUCTIONS
+⚠️ You MUST use ONLY the squad information provided above.
+⚠️ DO NOT invent, create, or hallucinate squad names, missions, or details.
+⚠️ DO NOT use example squads like "Innovators", "Data Wizards", "Cloud Pioneers", or "Creative Coders".
+⚠️ If the user asks about squads, present ONLY the squads from the documents above.
+⚠️ Match their skills ONLY against the squads provided above.
+⚠️ If no good match exists in the provided squads, recommend creating a new squad."""
         
         # Inject context before the last user message
         enhanced_messages = messages[:-1].copy() if len(messages) > 1 else []
@@ -182,6 +88,7 @@ Use the above information about squads to help the colleague. Focus on:
     async def postprocess_response(self, response: AgentResponse, context: Optional[Any] = None) -> AgentResponse:
         """
         Post-processes the response to handle stage transitions and extract user information.
+        Enforces SEQUENTIAL navigation - users cannot skip stages.
         
         Args:
             response: The agent's response
@@ -193,19 +100,31 @@ Use the above information about squads to help the colleague. Focus on:
         current_stage = self.current_state.get("stage", "initial_greeting")
         response_lower = response.message.lower()
         
-        # Stage transition logic based on user signals
+        # Track completed stages for sequential enforcement
+        completed_stages = self.current_state.get("completed_stages", [])
+        if current_stage not in completed_stages:
+            completed_stages.append(current_stage)
+            self.update_state({"completed_stages": completed_stages})
+        
+        # Stage transition logic - SEQUENTIAL ONLY (no skipping allowed)
         if current_stage == "initial_greeting":
-            # Check for readiness signals to move to explorer
+            # Can only move to squad_explorer (next stage)
             if any(word in response_lower for word in ["yes", "ready", "let's go", "start", "explore", "show me"]):
                 self.transition_to_stage("squad_explorer", "User ready to explore squads")
         
         elif current_stage == "squad_explorer":
-            # Check if user wants personalized matching
-            if any(phrase in response_lower for phrase in ["recommend", "match", "my skills", "best fit", "suggest", "which squad"]):
+            # Detect if user is trying to skip to selector
+            if any(phrase in response_lower for phrase in ["join", "choose", "select", "interested in", "want to join"]):
+                # Block skip attempt - set flag for agent to redirect
+                self.update_state({
+                    "skip_attempt": True,
+                    "skip_attempt_target": "squad_selector",
+                    "skip_attempt_count": self.current_state.get("skip_attempt_count", 0) + 1
+                })
+                # Stay in current stage - do not transition
+            # Allow progression to squad_matcher (next sequential stage)
+            elif any(phrase in response_lower for phrase in ["recommend", "match", "my skills", "best fit", "suggest", "which squad", "next", "continue"]):
                 self.transition_to_stage("squad_matcher", "User requested personalized matching")
-            # Allow direct jump to selector if they mention specific squad
-            elif any(phrase in response_lower for phrase in ["join", "choose", "select", "interested in", "want to join"]):
-                self.transition_to_stage("squad_selector", "User made selection")
         
         elif current_stage == "squad_matcher":
             # Extract skills from user input if present (simple keyword detection)
@@ -247,6 +166,14 @@ Use the above information about squads to help the colleague. Focus on:
         
         response.metadata["current_stage"] = self.current_state.get("stage")
         response.metadata["conversation_state"] = self.current_state
+        response.metadata["completed_stages"] = self.current_state.get("completed_stages", [])
+        
+        # Add skip attempt warning to metadata if detected
+        if self.current_state.get("skip_attempt"):
+            response.metadata["skip_attempt_detected"] = True
+            response.metadata["skip_message"] = "User attempted to skip stages - agent should redirect"
+            # Clear the flag after detection
+            self.update_state({"skip_attempt": False})
         
         # Legacy metadata for compatibility
         if "create" in response_lower or "new squad" in response_lower:

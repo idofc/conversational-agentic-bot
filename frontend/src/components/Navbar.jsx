@@ -3,6 +3,7 @@ import './Navbar.css'
 
 function Navbar({ onMenuClick, useCases, selectedUseCase, onUseCaseChange }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [conversationTitle, setConversationTitle] = useState(null)
   const dropdownRef = useRef(null)
 
   useEffect(() => {
@@ -14,6 +15,15 @@ function Navbar({ onMenuClick, useCases, selectedUseCase, onUseCaseChange }) {
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    const handleTitleUpdate = (event) => {
+      setConversationTitle(event.detail.title)
+    }
+
+    window.addEventListener('conversationTitleUpdate', handleTitleUpdate)
+    return () => window.removeEventListener('conversationTitleUpdate', handleTitleUpdate)
   }, [])
 
   const handleUseCaseSelect = (useCase) => {
@@ -29,6 +39,10 @@ function Navbar({ onMenuClick, useCases, selectedUseCase, onUseCaseChange }) {
         <span></span>
       </button>
       <h1 className="navbar-title">Chat App</h1>
+      
+      {conversationTitle && (
+        <div className="conversation-title">{conversationTitle}</div>
+      )}
       
       <div className="use-case-dropdown" ref={dropdownRef}>
         <button 

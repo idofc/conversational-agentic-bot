@@ -1,6 +1,6 @@
 import asyncio
 from sqlalchemy import select
-from database import init_db, AsyncSessionLocal, UseCaseDB
+from clients.database import init_db, AsyncSessionLocal, UseCaseDB
 
 async def seed_data():
     """

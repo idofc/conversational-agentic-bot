@@ -5,6 +5,36 @@
   background-color: #f5f5f5;
 }
 
+.documents-actions {
+  padding: 20px 40px 0 40px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.go-to-chat-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.go-to-chat-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.go-to-chat-btn svg {
+  stroke-width: 2;
+}
+
 .documents-header {
   padding: 30px 40px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -165,9 +195,9 @@
 }
 
 .documents-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .document-card {

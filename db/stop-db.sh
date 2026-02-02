@@ -1,11 +1,16 @@
 #!/bin/bash
 
-echo "Stopping PostgreSQL database..."
+echo "Stopping all services (PostgreSQL, Redis, Elasticsearch)..."
 
-# Check if container is running
-if docker ps --format '{{.Names}}' | grep -q '^conversational-bot-db$'; then
-    docker stop conversational-bot-db
-    echo "✓ Database stopped successfully"
+# Check if any containers are running
+if docker ps --format '{{.Names}}' | grep -q 'conversational-bot-'; then
+    cd "$(dirname "$0")/.."
+    docker compose stop
+    echo "✓ All services stopped successfully"
 else
-    echo "Database is not running"
+    echo "No services are currently running"
 fi
+
+echo ""
+echo "To start services again, run: ./start-db.sh"
+echo "To remove containers and data, run: cd .. && docker compose down -v"

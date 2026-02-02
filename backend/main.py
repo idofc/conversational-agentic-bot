@@ -1,18 +1,26 @@
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, BackgroundTasks
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, BackgroundTasks, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from contextlib import asynccontextmanager
 from datetime import datetime
 import os
+import time
+import logging
 
-from database import get_db, init_db, UseCaseDB, DocumentDB, DocumentChunkDB, AsyncSessionLocal, ConversationDB, MessageDB
+from clients.database import get_db, init_db, UseCaseDB, DocumentDB, DocumentChunkDB, AsyncSessionLocal, ConversationDB, MessageDB
+from clients.redis_client import redis_client
+from clients.elasticsearch_client import es_client
 from document_processor import save_upload_file, extract_text_from_file, chunk_text
 from embeddings import get_embedding
 from agents.base_agent import BaseAgent, ChatMessage
 from agents.squad_navigator_agent import SquadNavigatorAgent
+from logger_config import setup_logging, get_uvicorn_log_config
+
+# Initialize logging
+logger = setup_logging()
 
 class UseCase(BaseModel):
     id: int
@@ -52,18 +60,54 @@ class ChatResponse(BaseModel):
     message: str
     role: str
     timestamp: str
+    title: str = None
 
 class ConversationListItem(BaseModel):
     id: int
     title: str
     updatedAt: str
 
+class ConversationMessage(BaseModel):
+    id: int
+    role: str
+    content: str
+    timestamp: str
+
+class ConversationDetail(BaseModel):
+    conversationId: int
+    title: str
+    messages: List[ConversationMessage]
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Initialize database
+    logger.info("Starting application...")
     await init_db()
+    
+    # Test Redis connection
+    if redis_client.ping():
+        logger.info("✓ Redis connected")
+        print("✓ Redis connected")
+    else:
+        logger.warning("⚠ Redis connection failed - caching disabled")
+        print("⚠ Redis connection failed - caching disabled")
+    
+    # Test Elasticsearch connection
+    if es_client.ping():
+        logger.info("✓ Elasticsearch connected")
+        print("✓ Elasticsearch connected")
+    else:
+        logger.warning("⚠ Elasticsearch connection failed - search features disabled")
+        print("⚠ Elasticsearch connection failed - search features disabled")
+    
+    logger.info("Application startup complete")
     yield
-    # Shutdown: cleanup if needed
+    
+    # Shutdown: cleanup connections
+    logger.info("Shutting down application...")
+    redis_client.close()
+    es_client.close()
+    logger.info("Application shutdown complete")
 
 app = FastAPI(lifespan=lifespan)
 
@@ -75,6 +119,43 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Rate limiting middleware
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    """Rate limiting middleware using Redis"""
+    # Skip rate limiting for health checks and static files
+    if request.url.path in ["/", "/health", "/api/health"]:
+        return await call_next(request)
+    
+    # Get client identifier (IP address for now, could be user ID with auth)
+    client_id = request.client.host
+    endpoint = request.url.path
+    
+    # Check rate limit
+    allowed, remaining = redis_client.check_rate_limit(client_id, endpoint)
+    
+    if not allowed:
+        return Response(
+            content='{"detail": "Rate limit exceeded. Please try again later."}',
+            status_code=429,
+            media_type="application/json",
+            headers={
+                "X-RateLimit-Limit": str(redis_client.rate_limit_rpm),
+                "X-RateLimit-Remaining": "0",
+                "X-RateLimit-Reset": str(60 - (int(time.time()) % 60))
+            }
+        )
+    
+    # Process request
+    response = await call_next(request)
+    
+    # Add rate limit headers
+    response.headers["X-RateLimit-Limit"] = str(redis_client.rate_limit_rpm)
+    response.headers["X-RateLimit-Remaining"] = str(remaining)
+    response.headers["X-RateLimit-Reset"] = str(60 - (int(time.time()) % 60))
+    
+    return response
 
 @app.get("/")
 def read_root():
@@ -362,17 +443,46 @@ async def chat(
         conversation_id = conversation.id
     
     # Load conversation history
-    history_result = await db.execute(
-        select(MessageDB)
-        .where(MessageDB.conversation_id == conversation_id)
-        .order_by(MessageDB.created_at)
-    )
-    message_records = history_result.scalars().all()
+    # Try to get from Redis cache first
+    cached_messages = redis_client.get_cached_conversation(conversation_id)
     
-    chat_history = [
-        ChatMessage(role=msg.role, content=msg.content, timestamp=msg.created_at.isoformat())
-        for msg in message_records
-    ]
+    if cached_messages:
+        message_records = []
+        chat_history = [
+            ChatMessage(role=msg["role"], content=msg["content"], timestamp=msg["timestamp"])
+            for msg in cached_messages
+        ]
+        # Note: message_records will be empty from cache, we'll load from DB for state
+        history_result = await db.execute(
+            select(MessageDB)
+            .where(MessageDB.conversation_id == conversation_id)
+            .order_by(MessageDB.created_at)
+        )
+        message_records = history_result.scalars().all()
+    else:
+        # Load from database
+        history_result = await db.execute(
+            select(MessageDB)
+            .where(MessageDB.conversation_id == conversation_id)
+            .order_by(MessageDB.created_at)
+        )
+        message_records = history_result.scalars().all()
+        
+        chat_history = [
+            ChatMessage(role=msg.role, content=msg.content, timestamp=msg.created_at.isoformat() + 'Z' if msg.created_at else None)
+            for msg in message_records
+        ]
+        
+        # Cache the conversation history
+        cache_data = [
+            {
+                "role": msg.role,
+                "content": msg.content,
+                "timestamp": msg.created_at.isoformat() + 'Z' if msg.created_at else None
+            }
+            for msg in message_records
+        ]
+        redis_client.cache_conversation(conversation_id, cache_data)
     
     # Load conversation state from last assistant message
     conversation_state = None
@@ -390,6 +500,20 @@ async def chat(
     )
     db.add(user_message)
     await db.commit()
+    await db.refresh(user_message)
+    
+    # Index user message in Elasticsearch (async, non-blocking)
+    try:
+        es_client.index_message(
+            message_id=user_message.id,
+            conversation_id=conversation_id,
+            use_case_id=use_case.id,
+            role="user",
+            content=request.message,
+            created_at=user_message.created_at
+        )
+    except Exception as e:
+        print(f"Error indexing user message in Elasticsearch: {e}")
     
     # Create agent based on use case type
     if use_case.uri_context == "squad-navigator":
@@ -418,11 +542,68 @@ async def chat(
     await db.commit()
     await db.refresh(assistant_message)
     
+    # Index assistant message in Elasticsearch
+    try:
+        es_client.index_message(
+            message_id=assistant_message.id,
+            conversation_id=conversation_id,
+            use_case_id=use_case.id,
+            role="assistant",
+            content=response.message,
+            created_at=assistant_message.created_at,
+            metadata=response.metadata
+        )
+    except Exception as e:
+        print(f"Error indexing assistant message in Elasticsearch: {e}")
+    
+    # Invalidate conversation cache since we added new messages
+    redis_client.invalidate_conversation(conversation_id)
+    
+    # Generate title after 4 messages (2 user + 2 assistant)
+    conversation_title = conversation.title
+    message_count = len(message_records) + 2  # existing + current user + assistant
+    if message_count >= 4:
+        # Generate or regenerate title based on first two user messages
+        try:
+            from langchain_openai import ChatOpenAI
+            from langchain.schema import SystemMessage, HumanMessage
+            import os
+            
+            # Get first two user messages
+            user_messages = [msg for msg in message_records if msg.role == "user"]
+            user_messages.append(user_message)  # Add current user message
+            
+            if len(user_messages) >= 2:
+                llm = ChatOpenAI(model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"), temperature=0.3)
+                title_response = await llm.ainvoke([
+                    SystemMessage(content="Generate a short, concise title (max 6 words) for a conversation based on these user messages. Only return the title, nothing else."),
+                    HumanMessage(content=f"Message 1: {user_messages[0].content}\\nMessage 2: {user_messages[1].content}")
+                ])
+                conversation.title = title_response.content.strip()
+                conversation_title = conversation.title
+                await db.commit()
+                
+                # Index conversation in Elasticsearch with title
+                try:
+                    es_client.index_conversation(
+                        conversation_id=conversation_id,
+                        use_case_id=use_case.id,
+                        title=conversation_title,
+                        created_at=conversation.created_at,
+                        updated_at=conversation.updated_at,
+                        message_count=message_count
+                    )
+                except Exception as e:
+                    print(f"Error indexing conversation in Elasticsearch: {e}")
+        except Exception as e:
+            print(f"Error generating title: {e}")
+    
     return ChatResponse(
         conversationId=conversation_id,
         message=response.message,
         role="assistant",
-        timestamp=assistant_message.created_at.isoformat()
+        timestamp=assistant_message.created_at.isoformat() + 'Z',
+        title=conversation_title
     )
 
 @app.get("/api/use-cases/{uri_context}/conversations", response_model=List[ConversationListItem])
@@ -459,6 +640,266 @@ async def get_conversations(
         for conv in conversations
     ]
 
+@app.get("/api/use-cases/{uri_context}/last-conversation", response_model=ConversationDetail | None)
+async def get_last_conversation(
+    uri_context: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get the last conversation for a use case with all its messages
+    """
+    # Get use case
+    result = await db.execute(
+        select(UseCaseDB).where(UseCaseDB.uri_context == uri_context)
+    )
+    use_case = result.scalar_one_or_none()
+    
+    if not use_case:
+        raise HTTPException(status_code=404, detail="Use case not found")
+    
+    # Get last conversation
+    conversation_result = await db.execute(
+        select(ConversationDB)
+        .where(ConversationDB.use_case_id == use_case.id)
+        .order_by(ConversationDB.updated_at.desc())
+        .limit(1)
+    )
+    conversation = conversation_result.scalar_one_or_none()
+    
+    if not conversation:
+        return None
+    
+    # Get messages for this conversation
+    messages_result = await db.execute(
+        select(MessageDB)
+        .where(MessageDB.conversation_id == conversation.id)
+        .order_by(MessageDB.created_at)
+    )
+    messages = messages_result.scalars().all()
+    
+    return ConversationDetail(
+        conversationId=conversation.id,
+        title=conversation.title or "",
+        messages=[
+            ConversationMessage(
+                id=msg.id,
+                role=msg.role,
+                content=msg.content,
+                timestamp=msg.created_at.isoformat() + 'Z'
+            )
+            for msg in messages
+        ]
+    )
+
+@app.get("/api/conversations/{conversation_id}", response_model=ConversationDetail)
+async def get_conversation_by_id(
+    conversation_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Get a specific conversation by ID with all its messages
+    """
+    # Get conversation
+    conversation_result = await db.execute(
+        select(ConversationDB).where(ConversationDB.id == conversation_id)
+    )
+    conversation = conversation_result.scalar_one_or_none()
+    
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    # Get messages for this conversation
+    messages_result = await db.execute(
+        select(MessageDB)
+        .where(MessageDB.conversation_id == conversation.id)
+        .order_by(MessageDB.created_at)
+    )
+    messages = messages_result.scalars().all()
+    
+    return ConversationDetail(
+        conversationId=conversation.id,
+        title=conversation.title or "",
+        messages=[
+            ConversationMessage(
+                id=msg.id,
+                role=msg.role,
+                content=msg.content,
+                timestamp=msg.created_at.isoformat() + 'Z'
+            )
+            for msg in messages
+        ]
+    )
+
+@app.delete("/api/conversations/{conversation_id}")
+async def delete_conversation(
+    conversation_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Delete a conversation and all its messages
+    """
+    # Get conversation
+    conversation_result = await db.execute(
+        select(ConversationDB).where(ConversationDB.id == conversation_id)
+    )
+    conversation = conversation_result.scalar_one_or_none()
+    
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    # Delete conversation (messages will be cascade deleted)
+    await db.delete(conversation)
+    await db.commit()
+    
+    # Delete from Elasticsearch
+    try:
+        es_client.delete_conversation(conversation_id)
+    except Exception as e:
+        print(f"Error deleting conversation from Elasticsearch: {e}")
+    
+    # Invalidate Redis cache
+    redis_client.invalidate_conversation(conversation_id)
+    
+    return {"message": "Conversation deleted successfully"}
+
+
+# ============================================
+# Search Endpoints
+# ============================================
+
+class SearchRequest(BaseModel):
+    query: str
+    use_case_id: Optional[int] = None
+    conversation_id: Optional[int] = None
+    from_date: Optional[str] = None
+    to_date: Optional[str] = None
+    size: int = 20
+    from_: int = 0
+
+class SearchResult(BaseModel):
+    id: str
+    conversation_id: int
+    role: str
+    content: str
+    created_at: str
+    score: float
+    highlight: Optional[dict] = None
+
+class SearchResponse(BaseModel):
+    total: int
+    results: List[SearchResult]
+
+@app.post("/api/search/messages", response_model=SearchResponse)
+async def search_messages(request: SearchRequest):
+    """
+    Full-text search across all messages using Elasticsearch
+    """
+    try:
+        results = es_client.search_messages(
+            query=request.query,
+            use_case_id=request.use_case_id,
+            conversation_id=request.conversation_id,
+            from_date=request.from_date,
+            to_date=request.to_date,
+            size=request.size,
+            from_=request.from_
+        )
+        
+        return SearchResponse(
+            total=results["total"],
+            results=[
+                SearchResult(
+                    id=hit["id"],
+                    conversation_id=hit["conversation_id"],
+                    role=hit["role"],
+                    content=hit["content"],
+                    created_at=hit["created_at"],
+                    score=hit["score"],
+                    highlight=hit.get("highlight")
+                )
+                for hit in results["hits"]
+            ]
+        )
+    except Exception as e:
+        print(f"Search error: {e}")
+        return SearchResponse(total=0, results=[])
+
+@app.get("/api/search/conversations/{use_case_id}")
+async def search_conversations(use_case_id: int, query: str, size: int = 20):
+    """
+    Search conversations by title
+    """
+    try:
+        results = es_client.search_conversations(
+            query=query,
+            use_case_id=use_case_id,
+            size=size
+        )
+        
+        return {
+            "total": results["total"],
+            "conversations": [
+                {
+                    "id": hit["conversation_id"],
+                    "title": hit["title"],
+                    "updated_at": hit["updated_at"],
+                    "score": hit["score"]
+                }
+                for hit in results["hits"]
+            ]
+        }
+    except Exception as e:
+        print(f"Conversation search error: {e}")
+        return {"total": 0, "conversations": []}
+
+
+# ============================================
+# Health & Stats Endpoints
+# ============================================
+
+@app.get("/api/health")
+async def health_check():
+    """
+    Health check endpoint with infrastructure status
+    """
+    redis_status = redis_client.ping()
+    es_status = es_client.ping()
+    
+    return {
+        "status": "healthy" if (redis_status and es_status) else "degraded",
+        "services": {
+            "database": "connected",
+            "redis": "connected" if redis_status else "disconnected",
+            "elasticsearch": "connected" if es_status else "disconnected"
+        }
+    }
+
+@app.get("/api/stats")
+async def get_infrastructure_stats():
+    """
+    Get infrastructure statistics for monitoring
+    """
+    redis_stats = redis_client.get_stats()
+    es_stats = es_client.get_stats()
+    
+    return {
+        "redis": redis_stats,
+        "elasticsearch": es_stats
+    }
+
+@app.get("/api/stats/messages")
+async def get_message_stats(use_case_id: Optional[int] = None):
+    """
+    Get message analytics from Elasticsearch
+    """
+    try:
+        stats = es_client.get_message_stats(use_case_id=use_case_id)
+        return stats
+    except Exception as e:
+        print(f"Error getting message stats: {e}")
+        return {"error": str(e)}
+
+
     
     return UseCaseDetail(
         id=use_case.id,
@@ -471,4 +912,14 @@ async def get_conversations(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+    # Get uvicorn logging configuration
+    log_config = get_uvicorn_log_config()
+    
+    # Run with logging configuration
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8000,
+        log_config=log_config
+    )
